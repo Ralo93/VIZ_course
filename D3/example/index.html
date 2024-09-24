@@ -1,56 +1,68 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3 Exploding Circle Animation</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #222;
+        }
+    </style>
 </head>
-
-
 <body>
-    <div>
-        <h1>This is just an example</h1>
-        <p>Here is a little table.</p>
-        <p id='pepe'>Sixteen numbers in a 4x4 arrangement.</p>
-        <p>There are also column names.</p>
-    </div>
+    <svg width="800" height="600"></svg>
+    <script>
+        var svg = d3.select("svg");
 
-    <table>
-        <thead>
-            <tr>
-                <td>A</td>
-                <td>B</td>
-                <td>C</td>
-                <td>D</td>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>0</td>
-                <td>1</td>
-                <td>2</td>
-                <td>3</td>
-            </tr>
-            <tr>
-                <td>4</td>
-                <td>5</td>
-                <td>6</td>
-                <td>7</td>
-            </tr>
-            <tr>
-                <td>8</td>
-                <td>9</td>
-                <td>10</td>
-                <td>11</td>
-            </tr>
-            <tr>
-                <td>12</td>
-                <td>13</td>
-                <td>14</td>
-                <td>15</td>
-            </tr>
-        </tbody>
-    </table>
+        // Initial circle properties
+        var circle = svg.append("circle")
+            .attr("cx", 400)
+            .attr("cy", 300)
+            .attr("r", 20)
+            .attr("fill", "orange")
+            .attr("stroke", "red")
+            .attr("stroke-width", 2);
 
-    <svg width="500px" height="500px" style="background:whiteSmoke;"></svg>
+        // Animate the circle to "explode"
+        circle.transition()
+            .duration(1000)  // Duration of the explosion
+            .attr("r", 150)  // Increase the radius to simulate explosion
+            .attr("opacity", 0)  // Fade out to simulate dissipation
+            .ease(d3.easeExpOut)  // Exponential easing for a dramatic effect
+            .on("end", function() {
+                d3.select(this).remove();  // Remove the circle after the animation
+            });
+
+        // Create small fragments for the explosion effect
+        var fragmentCount = 20;  // Number of fragments
+        var fragments = svg.selectAll(".fragment")
+            .data(d3.range(fragmentCount))
+            .enter().append("circle")
+            .attr("class", "fragment")
+            .attr("cx", 400)
+            .attr("cy", 300)
+            .attr("r", 5)
+            .attr("fill", "orange")
+            .attr("opacity", 0.8);
+
+        // Animate the fragments to spread out from the original circle
+        fragments.transition()
+            .duration(1000)
+            .delay(200)  // Delay to start after the main circle
+            .attr("cx", function(d) { return 400 + Math.cos(d * (2 * Math.PI / fragmentCount)) * 200; })
+            .attr("cy", function(d) { return 300 + Math.sin(d * (2 * Math.PI / fragmentCount)) * 200; })
+            .attr("opacity", 0)  // Fade out as they move away
+            .ease(d3.easeCubicOut)  // Smooth easing for fragments
+            .on("end", function() {
+                d3.select(this).remove();  // Remove fragments after animation
+            });
+    </script>
 </body>
-
 </html>
